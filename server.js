@@ -6,12 +6,12 @@ const app = express();
 app.use(fileUpload());
 
  app.post('/upload', ((req, res) => {
-     if(req.file == null){
-         res.status(400).json({msg: 'No file Uploaded'});
+     if(req.files == null){
+        return res.status(400).json({msg: 'No file Uploaded'});
      }
      const file = req.files.file;
 
-     file.mv(`${__dirname}/clients/public/uploads`, err =>{
+     file.mv(`${__dirname}/client/public/uploads/${file.name}`, err =>{
          if(err){
              console.error(err);
              return res.status(500).send(err);
