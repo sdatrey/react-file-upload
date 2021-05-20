@@ -1,6 +1,7 @@
 import React, {Fragment, useState} from 'react';
 import axios from 'axios';
 import Message from "../Message/Message";
+import Progress from "../Progress/Progress";
 
 const FileUpload = () => {
 
@@ -8,6 +9,7 @@ const FileUpload = () => {
     const [fileName, setFileName] = useState('Choose File');
     const [uploadedFile, setUploadedFile] = useState({});
     const [message, setMessage] = useState('');
+    const [uploadPercentage, setUploadPercentage] = useState(0);
 
     const onChange = e => {
         setFile(e.target.files[0]);
@@ -21,6 +23,14 @@ const FileUpload = () => {
            const res = await axios.post('/upload', formData, {
                headers: {
                    'Content-Type': 'multipart/form-data'
+               },
+               onUploadProgress: progressEvent => {
+                   setUploadPercentage(
+                       parseInt
+                       (Math.round((progressEvent.loaded * 100) / progressEvent.total)
+                   )
+                   );
+                   setTimeout(() => setUploadPercentage(0), 1000)
                }
            });
            const { fileName, filePath } = res.data;
@@ -44,9 +54,11 @@ const FileUpload = () => {
                 <form onSubmit={onSubmit}>
                     <div className="mb-3 text-center">
                         <input className="form-control" type="file" id="formFile" onChange={onChange} />
+                        <Progress percentage={uploadPercentage}/>
                         <button className="btn btn-primary mt-2" type="submit" style={{"width" : "100%"}} >Upload</button>
                     </div>
                 </form>
+
                 {uploadedFile ? (<div className="row mt-5">
                         <div className="col-md-6 m-auto">
                             <h3 className="text-center">{ uploadedFile.fileName }</h3>
